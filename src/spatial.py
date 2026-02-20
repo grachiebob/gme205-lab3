@@ -32,6 +32,9 @@ class SpatialObject:
         Return bounding box as (minx, miny, maxx, maxy).
         """
         return (self.geometry.bounds)
+    
+    def intersects(self, other) -> bool:               #Add an intersects() method to SpatialObject
+        return self.geometry.intersects(other.geometry)
 
 class Point(SpatialObject):
 
@@ -48,7 +51,7 @@ class Point(SpatialObject):
         self.name = name
         self.tag = tag
 
-    @classmethod                    # implement a class method from_dict in Point
+    @classmethod                    # implement a class method from_dict() in Point
     def from_dict(cls, d: dict):
         lon = d.get("geometry", (None, None))[0]
         lat = d.get("geometry", (None, None))[1]
@@ -63,7 +66,7 @@ class Point(SpatialObject):
             tag=d.get("tag")
         )
     
-    def as_dict(self):
+    def as_dict(self):              # implement as_dict() in Point
         return {
             "id": self.id,
             "name": self.name,
@@ -81,7 +84,7 @@ class Point(SpatialObject):
     
 class Parcel(SpatialObject):
     """
-    Parcel = spatial oject + sturtcured attributes.
+    Parcel = spatial object + structured attributes.
     """
 
     def __init__(self, parcel_id, geometry, attributes: dict):
@@ -89,7 +92,7 @@ class Parcel(SpatialObject):
         self.parcel_id = parcel_id
         self.attributes = attributes
 
-    def as_dict(self):
+    def as_dict(self):                      # implement as_dict() in Parcel
         return {
             "parcel_id": self.parcel_id,
             "bbox": self.bbox(),
