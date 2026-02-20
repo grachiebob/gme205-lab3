@@ -31,7 +31,7 @@ class SpatialObject:
         """
         Return bounding box as (minx, miny, maxx, maxy).
         """
-        return self.geometry.bounds    
+        return (self.geometry.bounds)
 
 class Point(SpatialObject):
 
@@ -48,12 +48,17 @@ class Point(SpatialObject):
         self.name = name
         self.tag = tag
 
-    @classmethod                    # implemeent a class meethod from_dict in Point
+    @classmethod                    # implement a class method from_dict in Point
     def from_dict(cls, d: dict):
+        lon = d.get("geometry", (None, None))[0]
+        lat = d.get("geometry", (None, None))[1]
+        if lon is None or lat is None:
+            raise ValueError(f"Longitude or Latitude missing in input: {d}")
+        
         return cls(
             id=d.get("id"),
-            lon=d.get("lon"),
-            lat=d.get("lat"),
+            lon=float(lon),
+            lat=float(lat),
             name=d.get("name"),
             tag=d.get("tag")
         )
@@ -61,10 +66,10 @@ class Point(SpatialObject):
     def as_dict(self):
         return {
             "id": self.id,
-            "lon": self.geometry.x,
-            "lat": self.geometry.y,
             "name": self.name,
-            "tag": self.tag   
+            "tag": self.tag,
+            "geometry": self.to_tuple(),
+            "bbox": self.bbox()
         }
     
     def to_tuple(self):
@@ -72,6 +77,7 @@ class Point(SpatialObject):
 
     def distance_to(self, other):
         return self.geometry.distance(other.geometry)
+    
     
 class Parcel(SpatialObject):
     """
@@ -82,3 +88,10 @@ class Parcel(SpatialObject):
         super().__init__(geometry)
         self.parcel_id = parcel_id
         self.attributes = attributes
+
+    def as_dict(self):
+        return {
+            "parcel_id": self.parcel_id,
+            "bbox": self.bbox(),
+            "attributes": self.attributes
+        }
